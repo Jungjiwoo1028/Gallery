@@ -3,7 +3,6 @@ const app = express();
 const PORT = 8000;
 
 const multer = require("multer");
-// const upload = multer({ dest: "uploads" });
 const { v4: uuid } = require("uuid");
 const mime = require("mime-types");
 
@@ -30,10 +29,9 @@ const upload = multer({
 // app.use()는 미들웨어 기능을 마운트하거나 지정된 경로에 마운트하는 데 사용된다.
 app.use("/uploads", express.static("uploads"));
 
-// post 요청왔을 때 실행되는 함수
 // 주소 바로 뒤에는 미들웨어의 위치이다.
-// upload.single: 이름이 imageTest인 이미지 하나를 받겠다는 뜻이다.
-app.post("/upload", upload.single("img"), (req, res) => {
+// upload.single: 이름이 img인 이미지 하나를 받겠다는 뜻이다.
+app.post("/upload", upload.single("image"), (req, res) => {
   console.log(req.file);
   res.json(req.file);
 });

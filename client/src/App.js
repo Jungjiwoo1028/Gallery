@@ -1,7 +1,13 @@
 import React from "react";
+import UploadForm from "./components/UploadForm";
 
 const App = () => {
-  return <h1>hello</h1>;
+  return (
+    <div>
+      <h2>Gallery</h2>
+      <UploadForm />
+    </div>
+  );
 };
 
 export default App;
