@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "./UploadForm.css";
+import { toast } from "react-toastify";
 
 const UploadForm = () => {
   const [file, setFile] = useState(null);
@@ -17,24 +19,36 @@ const UploadForm = () => {
     e.preventDefault();
     const formData = new FormData();
     // image라는 키로 file 값을 보낸다
+    // content-type이란 간단히 말해 보내는 자원의 형식을 명시하기 위해 헤더에 실리는 정보 이다.
     formData.append("image", file);
     try {
       const res = await axios.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log({ res });
-      console.log("success");
+      toast.success("success!");
     } catch (err) {
-      console.log("faile");
+      toast.error(err.message);
       console.log(err);
     }
   };
 
   return (
     <form onSubmit={onSubmit}>
-      <label htmlFor="image">{fileName}</label>
-      <input id="image" type="file" onChange={imageSelectHandler} />
-      <button type="submit">Submit</button>
+      <div className="file-dropper">
+        {fileName}
+        <input id="image" type="file" onChange={imageSelectHandler} />
+      </div>
+      <button
+        type="submit"
+        style={{
+          width: "100%",
+          borderRadius: "3px",
+          height: "40px",
+          cursor: "pointer",
+        }}
+      >
+        Submit
+      </button>
     </form>
   );
 };
