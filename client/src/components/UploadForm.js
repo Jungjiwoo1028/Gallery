@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./UploadForm.css";
+import ProgressBar from "./ProgressBar";
 import { toast } from "react-toastify";
 
 const UploadForm = () => {
+  const defaultFileName = "Upload the file.";
   const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("Upload the file.");
+  const [fileName, setFileName] = useState(defaultFileName);
+  const [percent, setPercent] = useState(0);
 
   const imageSelectHandler = (e) => {
     const imageFile = e.target.files[0];
@@ -24,9 +27,18 @@ const UploadForm = () => {
     try {
       const res = await axios.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (e) => {
+          setPercent(Math.round((100 * e.loaded) / e.total));
+        },
       });
       toast.success("success!");
+      setTimeout(() => {
+        setPercent(0);
+        setFileName(defaultFileName);
+      }, 3000);
     } catch (err) {
+      setPercent(0);
+      setFileName(defaultFileName);
       toast.error(err.message);
       console.log(err);
     }
@@ -34,6 +46,7 @@ const UploadForm = () => {
 
   return (
     <form onSubmit={onSubmit}>
+      <ProgressBar percent={percent} />
       <div className="file-dropper">
         {fileName}
         <input id="image" type="file" onChange={imageSelectHandler} />
