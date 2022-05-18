@@ -5,10 +5,10 @@ import ProgressBar from "./ProgressBar";
 import { toast } from "react-toastify";
 
 const UploadForm = () => {
-  const defaultFileName = "Upload the file.";
+  const defaultFileName = "Upload your file";
+  const [fileName, setFileName] = useState(defaultFileName);
   const [file, setFile] = useState(null);
   const [imgSrc, setImgSrc] = useState(null);
-  const [fileName, setFileName] = useState(defaultFileName);
   const [percent, setPercent] = useState(0);
 
   const imageSelectHandler = (e) => {
@@ -39,7 +39,10 @@ const UploadForm = () => {
           setPercent(Math.round((100 * e.loaded) / e.total));
         },
       });
-      toast.success("success!");
+      toast.success("success!", {
+        position: "top-right",
+        autoClose: 1000,
+      });
       setTimeout(() => {
         setPercent(0);
         setFileName(defaultFileName);
@@ -49,7 +52,10 @@ const UploadForm = () => {
       setPercent(0);
       setFileName(defaultFileName);
       setImgSrc(null);
-      toast.error(err.message);
+      toast.error(err.message, {
+        position: "top-right",
+        autoClose: 2000,
+      });
     }
   };
 

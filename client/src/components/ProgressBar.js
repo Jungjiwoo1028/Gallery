@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React from "react";
 import "./ProgressBar.css";
-import { toast } from "react-toastify";
 
 const ProgressBar = ({ percent }) => {
   return (
