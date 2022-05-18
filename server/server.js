@@ -1,6 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const PORT = 8000;
+const mongoose = require("mongoose");
+const Image = require("./models/Image");
 
 const multer = require("multer");
 const { v4: uuid } = require("uuid");
@@ -25,15 +28,29 @@ const upload = multer({
   },
 });
 
-// express 변수에는 stastic이라는 메서드가 포함되어있습니다. 이 메서드를 미들웨어로서 로드해줍니다. static의 인자로 전달되는 'public'은 디렉터리의 이름입니다. 따라서 'public' 이라는 디렉터리 밑에 있는 데이터들은 웹브라우저의 요청에 따라 서비스를 제공해줄 수 있습니다.
-// app.use()는 미들웨어 기능을 마운트하거나 지정된 경로에 마운트하는 데 사용된다.
-app.use("/uploads", express.static("uploads"));
+// DB
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB Connected.");
 
-// 주소 바로 뒤에는 미들웨어의 위치이다.
-// upload.single: 이름이 img인 이미지 하나를 받겠다는 뜻이다.
-app.post("/upload", upload.single("image"), (req, res) => {
-  console.log(req.file);
-  res.json(req.file);
-});
+    // express 변수에는 stastic이라는 메서드가 포함되어있습니다. 이 메서드를 미들웨어로서 로드해줍니다. static의 인자로 전달되는 'public'은 디렉터리의 이름입니다. 따라서 'public' 이라는 디렉터리 밑에 있는 데이터들은 웹브라우저의 요청에 따라 서비스를 제공해줄 수 있습니다.
+    // app.use()는 미들웨어 기능을 마운트하거나 지정된 경로에 마운트하는 데 사용된다.
+    app.use("/uploads", express.static("uploads"));
 
-app.listen(PORT, () => console.log("Express listening PORT: " + PORT));
+    // 주소 바로 뒤에는 미들웨어의 위치이다.
+    // upload.single: 이름이 img인 이미지 하나를 받겠다는 뜻이다.
+    app.post("/images", upload.single("image"), async (req, res) => {
+      const image = await new Image({
+        key: req.file.filename,
+        originalFileName: req.file.originalname,
+      }).save();
+      res.json(image);
+    });
+    app.get("/images", async (req, res) => {
+      const images = await Image.find();
+      res.json(images);
+    });
+    app.listen(PORT, () => console.log("Express listening PORT: " + PORT));
+  })
+  .catch((err) => console.log(err));
