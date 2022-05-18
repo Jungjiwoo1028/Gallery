@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 const UploadForm = () => {
   const defaultFileName = "Upload the file.";
   const [file, setFile] = useState(null);
+  const [imgSrc, setImgSrc] = useState(null);
   const [fileName, setFileName] = useState(defaultFileName);
   const [percent, setPercent] = useState(0);
 
@@ -14,6 +15,13 @@ const UploadForm = () => {
     const imageFile = e.target.files[0];
     setFile(imageFile);
     setFileName(imageFile.name);
+
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(imageFile); // 파일 읽어오기
+    // onload: 읽기 동작이 성공적으로 완료되었을 때 발생
+    fileReader.onload = (e) => {
+      setImgSrc(e.target.result);
+    };
   };
 
   const onSubmit = async (e) => {
@@ -35,21 +43,31 @@ const UploadForm = () => {
       setTimeout(() => {
         setPercent(0);
         setFileName(defaultFileName);
+        setImgSrc(null);
       }, 3000);
     } catch (err) {
       setPercent(0);
       setFileName(defaultFileName);
+      setImgSrc(null);
       toast.error(err.message);
-      console.log(err);
     }
   };
 
   return (
     <form onSubmit={onSubmit}>
+      <img
+        src={imgSrc}
+        className={`image-preview ${imgSrc && "image-preview-show"}`}
+      />
       <ProgressBar percent={percent} />
       <div className="file-dropper">
         {fileName}
-        <input id="image" type="file" onChange={imageSelectHandler} />
+        <input
+          accept="image/*"
+          id="image"
+          type="file"
+          onChange={imageSelectHandler}
+        />
       </div>
       <button
         type="submit"
