@@ -4,7 +4,6 @@ const app = express();
 const PORT = 8000;
 const mongoose = require("mongoose");
 const Image = require("./models/Image");
-
 const multer = require("multer");
 const { v4: uuid } = require("uuid");
 const mime = require("mime-types");
@@ -35,7 +34,7 @@ mongoose
     console.log("MongoDB Connected.");
 
     // express 변수에는 stastic이라는 메서드가 포함되어있습니다. 이 메서드를 미들웨어로서 로드해줍니다. static의 인자로 전달되는 'public'은 디렉터리의 이름입니다. 따라서 'public' 이라는 디렉터리 밑에 있는 데이터들은 웹브라우저의 요청에 따라 서비스를 제공해줄 수 있습니다.
-    // app.use()는 미들웨어 기능을 마운트하거나 지정된 경로에 마운트하는 데 사용된다.
+    // app.use()는 미들웨어 기능을 마운트하거나 지정된 경로에 마운트하는데 사용된다.
     app.use("/uploads", express.static("uploads"));
 
     // 주소 바로 뒤에는 미들웨어의 위치이다.

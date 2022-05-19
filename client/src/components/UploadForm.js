@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import "./UploadForm.css";
 import ProgressBar from "./ProgressBar";
 import { toast } from "react-toastify";
+import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
+  const [imgList, setImgList] = useContext(ImageContext);
   const defaultFileName = "Upload your file";
   const [fileName, setFileName] = useState(defaultFileName);
   const [file, setFile] = useState(null);
@@ -39,6 +41,7 @@ const UploadForm = () => {
           setPercent(Math.round((100 * e.loaded) / e.total));
         },
       });
+      setImgList([...imgList, res.data]);
       toast.success("success!", {
         position: "top-right",
         autoClose: 1000,
