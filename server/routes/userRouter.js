@@ -1,7 +1,6 @@
 const userRouter = require("express").Router();
 const User = require("../models/User");
 const { hash, compare } = require("bcryptjs");
-const mongoose = require("mongoose");
 
 userRouter.post("/register", async (req, res) => {
   try {
@@ -32,6 +31,9 @@ userRouter.post("/register", async (req, res) => {
 userRouter.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.body.username });
+    if (!user) {
+      throw new Error("ID does not exist.");
+    }
     const isValid = await compare(req.body.password, user.hashedPassword);
     if (!isValid) {
       throw new Error("The information you entered is incorrect.");
@@ -55,11 +57,25 @@ userRouter.patch("/logout", async (req, res) => {
       throw new Error("invalid sessionId");
     }
     await User.updateOne(
-      { _id: req.user.id },
+      { _id: req.user._id },
       { $pull: { sessions: { _id: req.headers.sessionid } } }
     );
     res.json({ message: "user is logged out" });
   } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+userRouter.get("/me", (req, res) => {
+  try {
+    if (!req.user) throw new Error("You do not have permission");
+    res.json({
+      message: "success",
+      name: req.user.name,
+      sessionId: req.headers.sessionid,
+    });
+  } catch (error) {
+    console.log(error);
     res.status(400).json({ message: error.message });
   }
 });

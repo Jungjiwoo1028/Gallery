@@ -4,8 +4,8 @@ const app = express();
 const mongoose = require("mongoose");
 const { authentication } = require("./middleware/authentication");
 const { imageRouter } = require("./routes/imageRouter");
-const { MONGO_URI, PORT } = process.env;
 const { userRouter } = require("./routes/userRouter");
+const { MONGO_URI, PORT } = process.env;
 
 // DB
 mongoose

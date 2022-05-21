@@ -42,7 +42,7 @@ const UploadForm = () => {
         },
       });
       setImgList([...imgList, res.data]);
-      toast.success("success!", {
+      toast.success("Success!", {
         position: "top-right",
         autoClose: 1000,
       });

@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const ImageContext = createContext();
 
-export const ImageProvider = (props) => {
+export const ImageProvider = ({ children }) => {
   const [imgList, setImgList] = useState([]);
 
   useEffect(() => {
@@ -12,12 +12,12 @@ export const ImageProvider = (props) => {
       .then((res) => {
         setImgList(res.data);
       })
-      .catch((err) => console.log(err));
+      .catch((error) => console.log(error));
   }, []);
 
   return (
     <ImageContext.Provider value={[imgList, setImgList]}>
-      {props.children}
+      {children}
     </ImageContext.Provider>
   );
 };
