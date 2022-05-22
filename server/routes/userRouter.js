@@ -1,5 +1,6 @@
 const userRouter = require("express").Router();
 const User = require("../models/User");
+const Image = require("../models/Image");
 const { hash, compare } = require("bcryptjs");
 
 userRouter.post("/register", async (req, res) => {
@@ -74,6 +75,18 @@ userRouter.get("/me", (req, res) => {
       name: req.user.name,
       sessionId: req.headers.sessionid,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+userRouter.get("/me/images", async (req, res) => {
+  // 본인 사진들만 리턴 (public === false)
+  try {
+    if (!req.user) throw new Error("You do not have permission");
+    const images = await Image.find({ "user._id": req.user.id });
+    res.json(images);
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: error.message });
