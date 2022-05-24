@@ -8,22 +8,29 @@ const mongoose = require("mongoose");
 const fileUnlink = promisify(fs.unlink); //fs.unlink를 promise함수화 시킨다.
 
 // 주소 바로 뒤에는 미들웨어의 위치이다.
-// upload.single: 이름이 img인 이미지 하나를 받겠다는 뜻이다.
-imageRouter.post("/", upload.single("image"), async (req, res) => {
-  // 유저정보, public 유무확인 //
+// upload.single: 이름이 image인 이미지 하나를 받겠다는 뜻이다.
+// upload.array("image", 5): image데이터를 최대 5장까지 받는다.
+imageRouter.post("/", upload.array("image", 5), async (req, res) => {
   try {
     if (!req.user) throw new Error("You do not have permission");
-    const image = await new Image({
-      user: {
-        _id: req.user.id, // _id 대신 id로 넣으면 String으로 넣어진다.
-        name: req.user.name,
-        username: req.user.username,
-      },
-      public: req.body.public,
-      key: req.file.filename,
-      originalFileName: req.file.originalname,
-    }).save();
-    res.json(image);
+
+    const images = await Promise.all(
+      req.files.map(async (file) => {
+        const image = await new Image({
+          user: {
+            _id: req.user.id, // _id 대신 id로 넣으면 String으로 넣어진다.
+            name: req.user.name,
+            username: req.user.username,
+          },
+          public: req.body.public,
+          key: file.filename,
+          originalFileName: file.originalname,
+        }).save();
+        return image;
+      })
+    );
+
+    res.json(images);
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: error.message });
@@ -31,9 +38,24 @@ imageRouter.post("/", upload.single("image"), async (req, res) => {
 });
 
 imageRouter.get("/", async (req, res) => {
-  // public 이미지만 제공
-  const images = await Image.find({ public: true });
-  res.json(images);
+  try {
+    const { lastId } = req.query;
+    if (lastId && !mongoose.isValidObjectId(lastId))
+      throw new Error("invalid lastId");
+
+    // public 이미지만 제공
+    const images = await Image.find(
+      lastId ? { public: true, _id: { $lt: lastId } } : { public: true }
+    )
+      .sort({
+        _id: -1,
+      })
+      .limit(20);
+    res.json(images);
+  } catch (erorr) {
+    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
 });
 
 imageRouter.delete("/:imageId", async (req, res) => {

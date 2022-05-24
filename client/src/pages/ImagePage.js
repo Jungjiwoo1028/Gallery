@@ -44,7 +44,7 @@ const ImagePage = () => {
   const deleteHandler = async (e) => {
     try {
       if (!window.confirm("You want delete this image?")) return;
-      const result = await axios.delete(`/images/${imageId}`);
+      await axios.delete(`/images/${imageId}`);
       toast.success("Delete success", {
         position: "top-right",
         autoClose: 1000,
