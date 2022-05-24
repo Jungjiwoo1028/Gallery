@@ -29,7 +29,10 @@ const ToolBar = () => {
         <div>Home</div>
       </Link>
       {me ? (
-        <div onClick={logoutHandler} style={{ float: "right" }}>
+        <div
+          onClick={logoutHandler}
+          style={{ float: "right", cursor: "pointer" }}
+        >
           Logout {me.name}
         </div>
       ) : (

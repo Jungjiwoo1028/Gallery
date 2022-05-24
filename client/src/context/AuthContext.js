@@ -16,9 +16,11 @@ export const AuthProvider = ({ children }) => {
       axios
         .get("/user/me", { headers: { sessionid: sessionId } })
         .then((result) => {
+          // console.log(result.data);
           setMe({
             name: result.data.name,
             sessionId: result.data.sessionId,
+            userId: result.data.userId,
           });
         })
         .catch((error) => {
