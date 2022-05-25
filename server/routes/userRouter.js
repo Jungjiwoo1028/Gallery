@@ -2,6 +2,7 @@ const userRouter = require("express").Router();
 const User = require("../models/User");
 const Image = require("../models/Image");
 const { hash, compare } = require("bcryptjs");
+const mongoose = require("mongoose");
 
 userRouter.post("/register", async (req, res) => {
   try {
@@ -85,9 +86,18 @@ userRouter.get("/me", (req, res) => {
 userRouter.get("/me/images", async (req, res) => {
   // 본인 사진들만 리턴 (public === false)
   try {
+    const { lastId } = req.query;
+    if (lastId && !mongoose.isValidObjectId(lastId))
+      throw new Error("invalid lastId");
     if (!req.user) throw new Error("You do not have permission");
 
-    const images = await Image.find({ "user._id": req.user.id });
+    const images = await Image.find(
+      lastId
+        ? { "user._id": req.user.id, _id: { $lt: lastId } }
+        : { "user._id": req.user.id }
+    )
+      .sort({ _id: -1 })
+      .limit(30);
     res.json(images);
   } catch (error) {
     console.log(error);

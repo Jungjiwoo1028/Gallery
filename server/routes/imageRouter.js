@@ -45,6 +45,7 @@ imageRouter.get("/", async (req, res) => {
 
     // public 이미지만 제공
     const images = await Image.find(
+      // $lt: < 작다라는 뜻
       lastId ? { public: true, _id: { $lt: lastId } } : { public: true }
     )
       .sort({
@@ -53,6 +54,22 @@ imageRouter.get("/", async (req, res) => {
       .limit(20);
     res.json(images);
   } catch (erorr) {
+    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+imageRouter.get("/:imageId", async (req, res) => {
+  try {
+    const { imageId } = req.params;
+    if (!mongoose.isValidObjectId(imageId))
+      throw new Error("You do not have permission");
+    const image = await Image.findOne({ _id: imageId });
+    if (!image) throw new Error("This image isn't exist");
+    if (!image.public && (!req.user || req.user.id !== image.user.id))
+      throw new Error("This image isn't exist");
+    res.json(image);
+  } catch (error) {
     console.log(error);
     res.status(400).json({ message: error.message });
   }

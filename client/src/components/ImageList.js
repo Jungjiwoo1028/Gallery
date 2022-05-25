@@ -1,15 +1,42 @@
 import { ImageContext } from "../context/ImageContext";
-import React, { useContext } from "react";
+import React, { useContext, useRef, useEffect, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "./ImageList.css";
 import { Link } from "react-router-dom";
 
 const ImageList = () => {
-  const { imgList, myImages, isPublic, setIsPublic } = useContext(ImageContext);
+  const {
+    imgList,
+    isPublic,
+    setIsPublic,
+    imageError,
+    imageLoading,
+    setImageUrl,
+  } = useContext(ImageContext);
   const [me] = useContext(AuthContext);
+  const elementRef = useRef(null);
 
-  const list = (isPublic ? imgList : myImages).map((item, i) => (
-    <Link to={`/images/${item._id}`} key={i}>
+  const loaderMoreImages = useCallback(() => {
+    if (imgList.length === 0 || imageLoading) return;
+    const lastId = imgList[imgList.length - 1]._id;
+    setImageUrl(`${isPublic ? "" : "/user/me"}/images?lastId=${lastId}`);
+  }, [imgList, imageLoading, isPublic, setImageUrl]);
+
+  useEffect(() => {
+    if (!elementRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) loaderMoreImages();
+    });
+    observer.observe(elementRef.current);
+    return () => observer.disconnect();
+  }, [loaderMoreImages]);
+
+  const list = imgList.map((item, i) => (
+    <Link
+      to={`/images/${item._id}`}
+      key={i}
+      ref={i + 5 === imgList.length ? elementRef : undefined}
+    >
       <img
         alt=""
         style={{ marginTop: "15px" }}
@@ -32,6 +59,8 @@ const ImageList = () => {
         )}
       </div>
       <div className="image-list-container">{list}</div>
+      {imageError && <div>Error</div>}
+      {imageLoading && <div>Loading...</div>}
     </div>
   );
 };

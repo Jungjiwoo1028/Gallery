@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import axios from "axios";
 import "./UploadForm.css";
 import ProgressBar from "./ProgressBar";
@@ -6,12 +6,12 @@ import { toast } from "react-toastify";
 import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
-  const { imgList, setImgList, myImages, setMyImages } =
-    useContext(ImageContext);
+  const { setImgList, setMyImages } = useContext(ImageContext);
   const [files, setFiles] = useState(null);
   const [percent, setPercent] = useState(0);
   const [isPublic, setIsPublic] = useState(true);
   const [previews, setPreviews] = useState([]);
+  const inputRef = useRef();
 
   const imageSelectHandler = async (e) => {
     const imageFiles = e.target.files;
@@ -38,8 +38,6 @@ const UploadForm = () => {
   };
 
   const onSubmit = async (e) => {
-    // 기본적으로 submit버튼을 누르면 페이지가 새로고침된다.
-    // 하지만 이건 SPA로서 의미가 없어지기 때문에 기본동작을 막아준다.
     e.preventDefault();
     const formData = new FormData();
     // image라는 키로 file 값을 보낸다
@@ -53,8 +51,8 @@ const UploadForm = () => {
           setPercent(Math.round((100 * e.loaded) / e.total));
         },
       });
-      if (isPublic) setImgList([...imgList, ...res.data]);
-      else setMyImages([...myImages, ...res.data]);
+      if (isPublic) setImgList((prevData) => [...res.data, ...prevData]);
+      setMyImages((prevData) => [...res.data, ...prevData]);
       toast.success("Success!", {
         position: "top-right",
         autoClose: 1000,
@@ -62,9 +60,11 @@ const UploadForm = () => {
       setTimeout(() => {
         setPercent(0);
         setPreviews([]);
+        inputRef.current.value = null;
       }, 3000);
     } catch (err) {
       setPercent(0);
+      inputRef.current.value = null;
       toast.error(err.response.data.message, {
         position: "top-right",
         autoClose: 2000,
@@ -94,6 +94,7 @@ const UploadForm = () => {
       <div className="file-dropper">
         {title}
         <input
+          ref={(ref) => (inputRef.current = ref)}
           multiple
           accept="image/*"
           id="image"
@@ -105,7 +106,7 @@ const UploadForm = () => {
         type="checkbox"
         id="public-check"
         value={!isPublic}
-        onChange={(e) => setIsPublic(!isPublic)}
+        onChange={() => setIsPublic(!isPublic)}
       />
       <label htmlFor="public-check">private</label>
       <button
