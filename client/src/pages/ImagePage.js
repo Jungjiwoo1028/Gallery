@@ -90,7 +90,7 @@ const ImagePage = () => {
       <img
         style={{ width: "100%" }}
         alt={imageId}
-        src={`https://image-upload-gallery.s3.eu-west-2.amazonaws.com/w600/${image.key}`}
+        src={`https://d386ju3uugfq0r.cloudfront.net/w600/${image.key}`}
       />
       <span>Like: {image.likes.length}</span>
       {me && image.user._id === me.userId && (

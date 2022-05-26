@@ -39,7 +39,7 @@ const ImageList = () => {
       ref={i + 5 === imgList.length ? elementRef : undefined}
     >
       <Image
-        imageUrl={`https://image-upload-gallery.s3.eu-west-2.amazonaws.com/w140/${item.key}`}
+        imageUrl={`https://d386ju3uugfq0r.cloudfront.net/w140/${item.key}`}
       />
     </Link>
   ));
