@@ -6,11 +6,13 @@ import { toast } from "react-toastify";
 import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
-  const { setImgList, setMyImages } = useContext(ImageContext);
+  const { setImgList, setMyImages, imgList, myImages } =
+    useContext(ImageContext);
   const [files, setFiles] = useState(null);
-  const [percent, setPercent] = useState(0);
+  const [percent, setPercent] = useState([]);
   const [isPublic, setIsPublic] = useState(true);
   const [previews, setPreviews] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef();
 
   const imageSelectHandler = async (e) => {
@@ -37,49 +39,114 @@ const UploadForm = () => {
     setPreviews(imagePreviews);
   };
 
-  const onSubmit = async (e) => {
+  const onSubmitV2 = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    // image라는 키로 file 값을 보낸다
-    // content-type이란 간단히 말해 보내는 자원의 형식을 명시하기 위해 헤더에 실리는 정보 이다.
-    for (let file of files) formData.append("image", file);
-    formData.append("public", isPublic);
     try {
-      const res = await axios.post("/images", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        onUploadProgress: (e) => {
-          setPercent(Math.round((100 * e.loaded) / e.total));
-        },
+      setIsLoading(true);
+      const presignedData = await axios.post("/images/presigned", {
+        contentTypes: [...files].map((file) => file.type),
       });
+
+      await Promise.all(
+        [...files].map((file, i) => {
+          const { presigned } = presignedData.data[i];
+          const formData = new FormData();
+          for (const key in presigned.fields) {
+            formData.append(key, presigned.fields[key]);
+          }
+          formData.append("Content-Type", file.type);
+          formData.append("file", file);
+          return axios.post(presigned.url, formData, {
+            onUploadProgress: (e) => {
+              setPercent((prevData) => {
+                const newData = [...prevData];
+                newData[i] = Math.round((100 * e.loaded) / e.total);
+                return newData;
+              });
+            },
+          });
+        })
+      );
+
+      const res = await axios.post("/images", {
+        images: [...files].map((file, i) => ({
+          imageKey: presignedData.data[i].imageKey,
+          originalname: file.name,
+        })),
+        public: isPublic,
+      });
+      console.log(res);
       if (isPublic) setImgList((prevData) => [...res.data, ...prevData]);
       setMyImages((prevData) => [...res.data, ...prevData]);
+
       toast.success("Success!", {
         position: "top-right",
         autoClose: 1000,
       });
       setTimeout(() => {
-        setPercent(0);
+        setPercent([]);
         setPreviews([]);
         inputRef.current.value = null;
+        setIsLoading(false);
       }, 3000);
-    } catch (err) {
-      setPercent(0);
+    } catch (error) {
+      console.log(error);
+      setPercent([]);
+      setPreviews([]);
+      setIsLoading(false);
       inputRef.current.value = null;
-      toast.error(err.response.data.message, {
+      toast.error(error.response.data.message, {
         position: "top-right",
         autoClose: 2000,
       });
     }
   };
 
+  // const onSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const formData = new FormData();
+  //   // image라는 키로 file 값을 보낸다
+  //   // content-type이란 간단히 말해 보내는 자원의 형식을 명시하기 위해 헤더에 실리는 정보 이다.
+  //   for (let file of files) formData.append("image", file);
+  //   formData.append("public", isPublic);
+  //   try {
+  //     const res = await axios.post("/images", formData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //       onUploadProgress: (e) => {
+  //         setPercent(Math.round((100 * e.loaded) / e.total));
+  //       },
+  //     });
+  //     if (isPublic) setImgList((prevData) => [...res.data, ...prevData]);
+  //     setMyImages((prevData) => [...res.data, ...prevData]);
+  //     toast.success("Success!", {
+  //       position: "top-right",
+  //       autoClose: 1000,
+  //     });
+  //     setTimeout(() => {
+  //       setPercent(0);
+  //       setPreviews([]);
+  //       inputRef.current.value = null;
+  //     }, 3000);
+  //   } catch (err) {
+  //     setPercent(0);
+  //     inputRef.current.value = null;
+  //     toast.error(err.response.data.message, {
+  //       position: "top-right",
+  //       autoClose: 2000,
+  //     });
+  //   }
+  // };
+
   const previewImages = previews.map((preview, i) => (
-    <img
-      key={i}
-      src={preview.imgSrc}
-      style={{ width: 200, height: 200, objectFit: "cover" }}
-      alt=""
-      className={`image-preview ${preview.imgSrc && "image-preview-show"}`}
-    />
+    <div key={i}>
+      <img
+        src={preview.imgSrc}
+        style={{ width: 200, height: 200, objectFit: "cover" }}
+        alt=""
+        className={`image-preview ${preview.imgSrc && "image-preview-show"}`}
+      />
+      <ProgressBar percent={percent[i]} />
+    </div>
   ));
 
   const title =
@@ -88,9 +155,16 @@ const UploadForm = () => {
       : previews.reduce((prev, current) => prev + `${current.fileName},`, "");
 
   return (
-    <form onSubmit={onSubmit}>
-      <div style={{ display: "flex", flexWrap: "wrap" }}>{previewImages}</div>
-      <ProgressBar percent={percent} />
+    <form onSubmit={onSubmitV2}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-around",
+        }}
+      >
+        {previewImages}
+      </div>
       <div className="file-dropper">
         {title}
         <input
@@ -110,6 +184,7 @@ const UploadForm = () => {
       />
       <label htmlFor="public-check">private</label>
       <button
+        disabled={isLoading}
         type="submit"
         style={{
           width: "100%",

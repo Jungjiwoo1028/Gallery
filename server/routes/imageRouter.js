@@ -1,36 +1,88 @@
 const imageRouter = require("express").Router();
 const Image = require("../models/Image");
 const { upload } = require("../middleware/imageUpload");
-const fs = require("fs");
-const { promisify } = require("util");
+// const fs = require("fs");
+// const { promisify } = require("util");
 const mongoose = require("mongoose");
+const { s3, getSignedUrl } = require("../aws");
+const { v4: uuid } = require("uuid");
+const mime = require("mime-types");
 
-const fileUnlink = promisify(fs.unlink); //fs.unlink를 promise함수화 시킨다.
+// const fileUnlink = promisify(fs.unlink); //fs.unlink를 promise함수화 시킨다.
+
+imageRouter.post("/presigned", async (req, res) => {
+  try {
+    if (!req.user) throw new Error("You do not have permission");
+    const { contentTypes } = req.body;
+    if (!Array.isArray(contentTypes)) throw new Error("invalid contentTypes");
+
+    const presignedData = await Promise.all(
+      contentTypes.map(async (contentType) => {
+        const imageKey = `${uuid()}.${mime.extension(contentType)}`;
+        const key = `raw/${imageKey}`;
+        const presigned = await getSignedUrl({ key });
+        return { imageKey, presigned };
+      })
+    );
+
+    res.json(presignedData);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+});
 
 // 주소 바로 뒤에는 미들웨어의 위치이다.
 // upload.single: 이름이 image인 이미지 하나를 받겠다는 뜻이다.
 // upload.array("image", 5): image데이터를 최대 5장까지 받는다.
-imageRouter.post("/", upload.array("image", 5), async (req, res) => {
+// imageRouter.post("/", upload.array("image", 5), async (req, res) => {
+//   try {
+//     if (!req.user) throw new Error("You do not have permission");
+
+//     const images = await Promise.all(
+//       req.files.map(async (file) => {
+//         const image = await new Image({
+//           user: {
+//             _id: req.user.id, // _id 대신 id로 넣으면 String으로 넣어진다.
+//             name: req.user.name,
+//             username: req.user.username,
+//           },
+//           public: req.body.public,
+//           key: file.key.replace("raw/", ""),
+//           originalFileName: file.originalname,
+//         }).save();
+//         return image;
+//       })
+//     );
+
+//     res.json(images);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).json({ message: error.message });
+//   }
+// });
+
+imageRouter.post("/", upload.array("image", 30), async (req, res) => {
   try {
     if (!req.user) throw new Error("You do not have permission");
+    const { images, public } = req.body;
 
-    const images = await Promise.all(
-      req.files.map(async (file) => {
-        const image = await new Image({
+    const imageDocs = await Promise.all(
+      images.map((image) =>
+        new Image({
           user: {
             _id: req.user.id, // _id 대신 id로 넣으면 String으로 넣어진다.
             name: req.user.name,
             username: req.user.username,
           },
-          public: req.body.public,
-          key: file.filename,
-          originalFileName: file.originalname,
-        }).save();
-        return image;
-      })
+          public,
+          key: image.imageKey,
+          originalFileName: image.originalname,
+        }).save()
+      )
     );
 
-    res.json(images);
+    res.json(imageDocs);
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: error.message });
@@ -87,7 +139,17 @@ imageRouter.delete("/:imageId", async (req, res) => {
     if (!image) {
       throw new Error("This image has already been deleted");
     }
-    await fileUnlink(`./uploads/${image.key}`);
+    // await fileUnlink(`./uploads/${image.key}`);
+    s3.deleteObject(
+      {
+        Bucket: "image-upload-gallery",
+        Key: `raw/${image.key}`,
+      },
+      (error, data) => {
+        if (error) throw error;
+        console.log(data);
+      }
+    );
     res.json({ message: "Your image is deleted." });
   } catch (error) {
     console.log(error);

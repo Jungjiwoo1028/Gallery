@@ -3,6 +3,7 @@ import React, { useContext, useRef, useEffect, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "./ImageList.css";
 import { Link } from "react-router-dom";
+import Image from "./Image";
 
 const ImageList = () => {
   const {
@@ -37,10 +38,8 @@ const ImageList = () => {
       key={i}
       ref={i + 5 === imgList.length ? elementRef : undefined}
     >
-      <img
-        alt=""
-        style={{ marginTop: "15px" }}
-        src={`http://localhost:8000/uploads/${item.key}`}
+      <Image
+        imageUrl={`https://image-upload-gallery.s3.eu-west-2.amazonaws.com/w140/${item.key}`}
       />
     </Link>
   ));

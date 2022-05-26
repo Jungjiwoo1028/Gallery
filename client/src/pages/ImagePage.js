@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ImageContext } from "../context/ImageContext";
 import { AuthContext } from "../context/AuthContext";
@@ -9,9 +9,9 @@ import { useNavigate } from "react-router-dom";
 const ImagePage = () => {
   const navigate = useNavigate();
   const { imageId } = useParams();
+  const [me] = useContext(AuthContext);
   const { imgList, setImgList, setMyImages } = useContext(ImageContext);
   const [hasLiked, setHasLiked] = useState(false);
-  const [me] = useContext(AuthContext);
   const [image, setImage] = useState();
   const [error, setError] = useState(false);
 
@@ -90,7 +90,7 @@ const ImagePage = () => {
       <img
         style={{ width: "100%" }}
         alt={imageId}
-        src={`http://localhost:8000/uploads/${image.key}`}
+        src={`https://image-upload-gallery.s3.eu-west-2.amazonaws.com/w600/${image.key}`}
       />
       <span>Like: {image.likes.length}</span>
       {me && image.user._id === me.userId && (
