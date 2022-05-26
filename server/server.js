@@ -5,7 +5,18 @@ const mongoose = require("mongoose");
 const { authentication } = require("./middleware/authentication");
 const { imageRouter } = require("./routes/imageRouter");
 const { userRouter } = require("./routes/userRouter");
-const { MONGO_URI, PORT } = process.env;
+// const { MONGO_URI, PORT } = process.env;
+const { MONGO_URI } = process.env;
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("client/build"));
+}
+
+app.get("/", (request, response) => {
+  response.sendFile(path.join(__dirname, "client/build", "index.html"));
+});
+
+const POST = process.env.PORT || 8000;
 
 // DB
 mongoose
@@ -20,6 +31,6 @@ mongoose
     app.use(authentication);
     app.use("/images", imageRouter); // -> /images로 시작되는 경로는 모두 imageRouter로 전송을 하라는 뜻
     app.use("/user", userRouter);
-    app.listen(PORT, () => console.log("Express listening PORT: " + PORT));
+    app.listen(POST, () => console.log("Express listening PORT: " + PORT));
   })
   .catch((err) => console.log(err));
