@@ -20,3 +20,9 @@ It is a image management project with signup, login and like/unlik.
 - Reduce image size using AWS Lambda
 - Infinite scroll with IntersectionObserver
 - Session-based Authentication & Authorization
+
+## Backend Architecture
+### Before image management in the cloud
+<img width="773" alt="스크린샷 2022-05-27 21 33 49" src="https://user-images.githubusercontent.com/75884943/170732541-b7e4ea27-2005-4b3b-be4e-dd8caeb74d17.png">
+### After
+![FLOWCHAE](https://user-images.githubusercontent.com/75884943/170732513-654575aa-cced-4835-9a8a-f06f2f4182ec.png)
