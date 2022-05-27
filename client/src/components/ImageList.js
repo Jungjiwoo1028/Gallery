@@ -47,12 +47,16 @@ const ImageList = () => {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <h2>My Gallery ({isPublic ? "public" : "private"})</h2>
-        {me && (
-          <button
-            style={{ marginLeft: "10px" }}
-            onClick={() => setIsPublic(!isPublic)}
+        <h2>
+          {me?.name ? `${me.name}'s` : ""} Gallery
+          <span
+            style={{ fontSize: "15px", marginLeft: "10px", color: "#d3fd54" }}
           >
+            {isPublic ? "public" : "private"}
+          </span>
+        </h2>
+        {me && (
+          <button className="show_btn" onClick={() => setIsPublic(!isPublic)}>
             show {isPublic ? "private" : "public"} images
           </button>
         )}

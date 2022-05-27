@@ -138,10 +138,10 @@ const UploadForm = () => {
   // };
 
   const previewImages = previews.map((preview, i) => (
-    <div key={i}>
+    <div key={i} style={{ margin: "1px" }}>
       <img
         src={preview.imgSrc}
-        style={{ width: 200, height: 200, objectFit: "cover" }}
+        style={{ width: 120, height: 120, objectFit: "cover" }}
         alt=""
         className={`image-preview ${preview.imgSrc && "image-preview-show"}`}
       />
@@ -161,6 +161,7 @@ const UploadForm = () => {
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "space-around",
+          width: "100%",
         }}
       >
         {previewImages}
@@ -176,25 +177,31 @@ const UploadForm = () => {
           onChange={imageSelectHandler}
         />
       </div>
-      <input
-        type="checkbox"
-        id="public-check"
-        value={!isPublic}
-        onChange={() => setIsPublic(!isPublic)}
-      />
-      <label htmlFor="public-check">private</label>
-      <button
-        disabled={isLoading}
-        type="submit"
+      <div
         style={{
-          width: "100%",
-          borderRadius: "3px",
-          height: "40px",
-          cursor: "pointer",
+          alignItems: "end",
+          marginBottom: "10px",
+          marginTop: "-5px",
         }}
       >
-        Submit
-      </button>
+        <input
+          type="checkbox"
+          id="public-check"
+          value={!isPublic}
+          onChange={() => setIsPublic(!isPublic)}
+        />
+        <label
+          htmlFor="public-check"
+          style={{ fontSize: "15px", marginLeft: "2px" }}
+        >
+          private
+        </label>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <button className="button" disabled={isLoading} type="submit">
+          Submit
+        </button>
+      </div>
     </form>
   );
 };

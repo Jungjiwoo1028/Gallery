@@ -7,7 +7,6 @@ const MainPage = () => {
   const [me] = useContext(AuthContext);
   return (
     <>
-      <h2>Gallery</h2>
       {me && <UploadForm />}
       <ImageList />
     </>

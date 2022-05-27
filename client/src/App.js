@@ -7,10 +7,18 @@ import RegisterPage from "./pages/RegisterPage";
 import { Routes, Route } from "react-router-dom";
 import ToolBar from "./components/ToolBar";
 import ImagePage from "./pages/ImagePage";
+import "./App.css";
 
 const App = () => {
   return (
-    <div style={{ maxWidth: 600, margin: "auto" }}>
+    <div
+      style={{
+        maxWidth: 600,
+        margin: "auto",
+        color: "#fff",
+        fontFamily: "DelaGothicOne",
+      }}
+    >
       <ToastContainer />
       <ToolBar />
       <Routes>

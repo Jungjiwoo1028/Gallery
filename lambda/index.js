@@ -3,7 +3,7 @@ const aws = require("aws-sdk");
 const s3 = new aws.S3();
 
 const transformationOptions = [
-  { name: "w140", width: 140 },
+  { name: "w140", width: 200 },
   { name: "w600", width: 600 },
 ];
 

@@ -1,7 +1,7 @@
 .image-list-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 12px !important;
   justify-content: space-around;
 }
 
@@ -9,10 +9,25 @@
   width: 140px;
   height: 140px;
   object-fit: cover;
+  border-radius: 20px;
 }
 
 .image-list-container img:hover {
   box-shadow: 4px 4px 4px grey;
   opacity: 0.7;
   cursor: pointer;
+}
+
+.show_btn {
+  float: right;
+  margin-left: 10;
+  font-size: 15px;
+  font-family: "DelaGothicOne";
+  border-radius: 20px;
+  border-style: none;
+  cursor: pointer;
+  background-color: #d3fd54;
+  color: #000;
+  margin-top: 5px;
+  margin-left: 10px;
 }

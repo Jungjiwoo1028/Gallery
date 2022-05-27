@@ -18,7 +18,10 @@ const ImagePage = () => {
   useEffect(() => {
     const img = imgList.find((img) => img._id === imageId);
     if (img) setImage(img);
+    console.log(img);
   }, [imgList, imageId]);
+
+  console.log(image);
 
   useEffect(() => {
     if (image && image._id === imageId) return;
@@ -29,6 +32,7 @@ const ImagePage = () => {
         setError(false);
       })
       .catch((error) => {
+        console.log(error);
         setError(true);
         toast.error(error.response.data.message, {
           position: "top-right",
@@ -92,17 +96,38 @@ const ImagePage = () => {
         alt={imageId}
         src={`https://d386ju3uugfq0r.cloudfront.net/w600/${image.key}`}
       />
-      <span>Like: {image.likes.length}</span>
+      <span style={{ fontSize: "25px" }}>💗 {image.likes.length}</span>
       {me && image.user._id === me.userId && (
         <button
           onClick={deleteHandler}
-          style={{ float: "right", marginLeft: 10 }}
+          style={{
+            float: "right",
+            marginLeft: 10,
+            fontSize: "20px",
+            fontFamily: "DelaGothicOne",
+            borderRadius: "20px",
+            borderStyle: "none",
+            cursor: "pointer",
+            backgroundColor: "#5541f5",
+            color: "#d3fd54",
+            marginTop: "5px",
+          }}
         >
           Delete
         </button>
       )}
-      <button onClick={onSubmit} style={{ float: "right" }}>
-        {hasLiked ? "unlike" : "like"}
+      <button
+        onClick={onSubmit}
+        style={{
+          float: "right",
+          backgroundColor: "#000",
+          marginTop: "5px",
+          fontSize: "25px",
+          borderStyle: "none",
+          cursor: "pointer",
+        }}
+      >
+        {hasLiked ? "👎" : "👍"}
       </button>
     </div>
   );

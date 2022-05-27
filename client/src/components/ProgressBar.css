@@ -1,16 +1,21 @@
 .progress-bar-boundary {
   border: 1px solid grey;
   margin-bottom: 20px;
-  height: 40px;
+  height: 20px;
   border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .progress-bar-boundary div {
   text-align: center;
-  background-color: green;
-  height: 30px;
-  padding-top: 10px;
+  background-color: #5541f5;
   border-radius: 10px;
   color: #fff;
   transition: 0.3s;
+}
+
+.percent {
+  font-size: 15px;
 }

@@ -51,13 +51,13 @@ const RegisterPage = () => {
   return (
     <div
       style={{
-        marginTop: 100,
-        maxWidth: 350,
+        marginTop: 50,
+        maxWidth: 400,
         marginLeft: "auto",
         marginRight: "auto",
       }}
     >
-      <h3>Sign up</h3>
+      <h2>Sign up</h2>
       <form onSubmit={submitHandler}>
         <CustomInput label="Name" setValue={setName} value={name} />
         <CustomInput
@@ -77,7 +77,24 @@ const RegisterPage = () => {
           setValue={setPasswordCheck}
           value={passwordCheck}
         />
-        <button type="submit">Submit</button>
+        <button
+          type="submit"
+          style={{
+            float: "right",
+            marginLeft: 10,
+            fontSize: "17px",
+            fontFamily: "DelaGothicOne",
+            borderRadius: "20px",
+            borderStyle: "none",
+            cursor: "pointer",
+            backgroundColor: "#5541f5",
+            color: "#d3fd54",
+            marginTop: "10px",
+            marginLeft: "10px",
+          }}
+        >
+          Submit
+        </button>
       </form>
     </div>
   );
