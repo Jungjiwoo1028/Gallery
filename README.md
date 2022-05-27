@@ -28,3 +28,5 @@ It is a image management project with signup, login and like/unlik.
 ### After 
 <img width="773" alt="스크린샷 2022-05-27 21 33 49" src="https://user-images.githubusercontent.com/75884943/170732635-d9e786ce-9d41-49c9-ba4d-3cc9978ca2fe.png">
 
+## Login & Signup Flow
+![스크린샷 2022-05-27 22 28 09](https://user-images.githubusercontent.com/75884943/170733140-dfe1658d-d269-4688-8f55-e199379c594f.png)
